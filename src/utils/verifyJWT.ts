@@ -7,10 +7,8 @@ import { UserRole } from '@prisma/client';
 export const createToken = (
   jwtPayload: {
     id: string;
-    name: string;
     email: string;
     role: UserRole;
-    profilePhoto?: string;
   },
   secret: string,
   expiresIn: string,

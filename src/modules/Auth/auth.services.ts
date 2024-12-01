@@ -5,66 +5,10 @@ import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../../config';
 import { createToken } from '../../utils/verifyJWT';
-import { TLoginUser, TSocialLoginUser } from './auth.interface';
+import { TLoginUser } from './auth.interface';
 import AppError from '../../errors/appError';
-import { Prisma, UserRole, UserStatus } from '@prisma/client';
+import { UserStatus } from '@prisma/client';
 import prisma from '../../utils/prisma';
-
-const registerUser = async (payload: Prisma.UserCreateInput) => {
-  // checking if the user is exist
-  const user = await prisma.user.findUnique({
-    where: {
-      email: payload.email,
-    },
-  });
-
-  if (user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user is already exist!');
-  }
-
-  const hashedPassword: string = await bcrypt.hash(
-    payload.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-
-  const userData = {
-    email: payload.email,
-    password: hashedPassword,
-    name: payload.name,
-    profilePhoto: payload.profilePhoto,
-  };
-
-  // // create new user
-  const newUser = await prisma.user.create({
-    data: userData,
-  });
-
-  //create token and sent to the  client
-
-  const jwtPayload = {
-    id: newUser.id,
-    name: newUser.name,
-    email: newUser.email,
-    profilePhoto: newUser.profilePhoto,
-    role: newUser.role,
-  };
-
-  const accessToken = createToken(
-    jwtPayload,
-    config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string,
-  );
-
-  const refreshToken = createToken(
-    jwtPayload,
-    config.jwt_refresh_secret as string,
-    config.jwt_refresh_expires_in as string,
-  );
-
-  const combinedResult = { accessToken, refreshToken, newUser };
-
-  return combinedResult;
-};
 
 const loginUser = async (payload: TLoginUser) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -87,9 +31,7 @@ const loginUser = async (payload: TLoginUser) => {
   //create token and sent to the  client
   const jwtPayload = {
     id: userData.id,
-    name: userData.name,
     email: userData.email,
-    profilePhoto: userData.profilePhoto,
     role: userData.role,
   };
 
@@ -252,9 +194,7 @@ const refreshToken = async (token: string) => {
 
   const jwtPayload = {
     id: userData.id,
-    name: userData.name,
     email: userData.email,
-    profilePhoto: userData.profilePhoto,
     role: userData.role,
   };
 
@@ -304,7 +244,6 @@ const refreshToken = async (token: string) => {
 // };
 
 export const AuthServices = {
-  registerUser,
   loginUser,
   //   resetPassword,
   refreshToken,
