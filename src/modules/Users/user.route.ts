@@ -2,6 +2,8 @@ import express from 'express';
 import { userController } from './user.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { userValidation } from './user.validation';
+import auth from '../../middlewares/auth';
+import { UserRole } from '@prisma/client';
 
 const router = express.Router();
 
@@ -11,11 +13,16 @@ const router = express.Router();
 //   userController.getAllFromDB,
 // );
 
-// router.get(
-//   '/me',
-//   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
-//   userController.getMyProfile,
-// );
+router.get(
+  '/me',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  userController.getMyProfile,
+);
 
 router.post(
   '/create-admin',

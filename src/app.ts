@@ -8,7 +8,12 @@ import httpStatus from 'http-status';
 
 const app: Application = express();
 
-app.use(cors({ origin: '*' }));
+app.use(
+  cors({
+    origin: ['http://localhost:3000'], // Allow requests from this origin
+    credentials: true, // Allow cookies and other credentials
+  }),
+);
 app.use(cookieParser());
 
 //parser
@@ -22,7 +27,7 @@ app.use('/api', router);
 app.get('/', (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,
-    message: 'Welcome to Apollo Server!',
+    message: 'Welcome to Shoply Server!',
   });
 });
 

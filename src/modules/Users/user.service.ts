@@ -3,8 +3,9 @@ import AppError from '../../errors/appError';
 import prisma from '../../utils/prisma';
 import config from '../../config';
 import bcrypt from 'bcryptjs';
-import { UserRole } from '@prisma/client';
+import { UserRole, UserStatus } from '@prisma/client';
 import { createToken } from '../../utils/verifyJWT';
+import { IAuthUser } from './user.interface';
 
 const createAdmin = async (payload: {
   name: string;
@@ -219,8 +220,54 @@ const createCustomer = async (payload: {
   return combinedResult;
 };
 
+const getMyProfile = async (user: IAuthUser) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatus.ACTIVE,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+
+  let profileInfo;
+
+  if (userInfo.role === UserRole.SUPER_ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  } else if (userInfo.role === UserRole.ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  } else if (userInfo.role === UserRole.VENDOR) {
+    profileInfo = await prisma.vendor.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  } else if (userInfo.role === UserRole.CUSTOMER) {
+    profileInfo = await prisma.customer.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+
+  return { ...userInfo, ...profileInfo };
+};
+
 export const userService = {
   createAdmin,
   createVendor,
   createCustomer,
+  getMyProfile,
 };

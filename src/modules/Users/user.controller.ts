@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { userService } from './user.service';
 import config from '../../config';
+import { IAuthUser } from './user.interface';
 
 const createAdmin = catchAsync(async (req, res) => {
   const result = await userService.createAdmin(req.body);
@@ -91,20 +92,16 @@ const createCustomer = catchAsync(async (req, res) => {
 //   });
 // });
 
-// const getMyProfile = catchAsync(
-//   async (req: Request & { user?: IAuthUser }, res: Response) => {
-//     const user = req.user;
+const getMyProfile = catchAsync(async (req, res) => {
+  const result = await userService.getMyProfile(req.user as IAuthUser);
 
-//     const result = await userService.getMyProfile(user as IAuthUser);
-
-//     sendResponse(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: 'My profile data fetched!',
-//       data: result,
-//     });
-//   },
-// );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My profile data fetched!',
+    data: result,
+  });
+});
 
 // const updateMyProfie = catchAsync(
 //   async (req: Request & { user?: IAuthUser }, res: Response) => {
@@ -127,6 +124,6 @@ export const userController = {
   createCustomer,
   //   getAllFromDB,
   //   changeProfileStatus,
-  //   getMyProfile,
+  getMyProfile,
   //   updateMyProfie,
 };
