@@ -103,7 +103,7 @@ const createVendor = async (payload: {
       data: {
         email: payload.email,
         password: hashedPassword,
-        role: UserRole.ADMIN,
+        role: UserRole.VENDOR,
       },
       include: {
         vendor: true,
@@ -176,7 +176,7 @@ const createCustomer = async (payload: {
       data: {
         email: payload.email,
         password: hashedPassword,
-        role: UserRole.ADMIN,
+        role: UserRole.CUSTOMER,
       },
       include: {
         customer: true,
