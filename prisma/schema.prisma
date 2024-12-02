@@ -99,8 +99,8 @@ model Product {
 
 model Category {
   id       String   @id @default(uuid())
-  name     String
-  image    String?
+  name     String    @unique
+  image    String
   products Product[]
 
   @@map("categories")
