@@ -114,8 +114,6 @@ const createVendor = async (payload: {
       data: {
         name: payload.name,
         email: user.email,
-        profilePhoto:
-          'https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/83221961/original/425127947f0688643bcefba40b83c767b13e2a6a/illustrate-your-cartoon-avatar.jpg',
       },
       include: {
         user: true,

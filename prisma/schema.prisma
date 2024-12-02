@@ -44,10 +44,15 @@ model Vendor {
   id            String   @id @default(uuid())
   name          String
   email         String   @unique
-  profilePhoto  String?
+  shopName      String?
+  logo          String?
+  description   String?
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  products      Product[]
+  orders        Order[]
+  followers     Follow[]
 
   user User @relation(fields: [email], references: [email])
 
@@ -55,17 +60,112 @@ model Vendor {
 }
 
 model Customer {
-  id            String   @id @default(uuid())
-  name          String
-  email         String   @unique
-  profilePhoto  String?
-  isDeleted     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  profilePhoto      String?
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orders            Order[]
+  reviews           Review[]
+  follows           Follow[]
+  recentProductView RecentProductView[]
 
   user User @relation(fields: [email], references: [email])
 
   @@map("customers")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  name           String
+  price          Float
+  inventoryCount Int
+  description    String?
+  discount       Float?
+  categoryId     String
+  vendorId       String
+  orderDetails   OrderDetail[]
+  reviews        Review[]
+  recentProductView RecentProductView[]
+
+  category       Category  @relation(fields: [categoryId], references: [id])
+  vendor         Vendor    @relation(fields: [vendorId], references: [id])
+
+  @@map("products")
+  
+}
+
+model Category {
+  id       String   @id @default(uuid())
+  name     String
+  image    String?
+  products Product[]
+
+  @@map("categories")
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  customerId String
+  vendorId   String
+  totalPrice Float
+  paymentStatus PaymentStatus
+  transactionId      String        @unique
+  orderDetails OrderDetail[]
+
+  customer   Customer      @relation(fields: [customerId], references: [id])
+  vendor     Vendor        @relation(fields: [vendorId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderDetail {
+  id         String   @id @default(uuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  pricePerUnit Float
+
+  order       Order    @relation(fields: [orderId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_details")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  productId   String
+  customerId  String
+  rating      Int
+  comment     String?
+
+  product     Product   @relation(fields: [productId], references: [id])
+  customer    Customer  @relation(fields: [customerId], references: [id])
+
+  @@map("reviews")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  customerId  String
+  vendorId    String
+
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  vendor      Vendor    @relation(fields: [vendorId], references: [id])
+
+  @@map("followers")
+}
+
+model RecentProductView {
+  id          String   @id @default(uuid())
+  customerId  String
+  productId   String
+  viewedAt    DateTime  @default(now())
+  
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
 }
 
 enum UserRole {
@@ -79,4 +179,9 @@ enum UserStatus {
   ACTIVE
   BLOCKED
   DELETED
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
 }

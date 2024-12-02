@@ -45,7 +45,6 @@ const createVendor = catchAsync(async (req, res) => {
 });
 
 const createCustomer = catchAsync(async (req, res) => {
-  console.log(req.body);
   const result = await userService.createCustomer(req.body);
 
   const { refreshToken, accessToken, newUser } = result;
