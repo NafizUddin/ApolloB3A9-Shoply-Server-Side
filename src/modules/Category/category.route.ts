@@ -14,4 +14,13 @@ router.post(
   CategoryController.createCategory,
 );
 
+router.get('/', CategoryController.getAllCategories);
+
+router.patch(
+  '/:categoryId',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(categoryValidation.updateCategoryValidation),
+  CategoryController.updateCategory,
+);
+
 export const CategoryRoutes = router;
