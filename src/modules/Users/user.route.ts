@@ -26,19 +26,19 @@ router.get(
 
 router.post(
   '/create-admin',
-  validateRequest(userValidation.createAdmin),
+  validateRequest(userValidation.createUser),
   userController.createAdmin,
 );
 
 router.post(
   '/create-vendor',
-  validateRequest(userValidation.createAdmin),
+  validateRequest(userValidation.createUser),
   userController.createVendor,
 );
 
 router.post(
   '/create-customer',
-  validateRequest(userValidation.createAdmin),
+  validateRequest(userValidation.createUser),
   userController.createCustomer,
 );
 
