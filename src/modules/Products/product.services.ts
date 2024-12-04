@@ -43,7 +43,8 @@ const getAllProducts = async (
   options: IPaginationOptions,
 ) => {
   const { limit, page, skip } = calculatePagination(options);
-  const { searchTerm, minPrice, maxPrice, vendorId, ...filterData } = filters;
+  const { searchTerm, minPrice, maxPrice, vendorId, flashSale, ...filterData } =
+    filters;
 
   const andConditions: Prisma.ProductWhereInput[] = [];
 
@@ -84,6 +85,16 @@ const getAllProducts = async (
         gte: minPriceNum,
         lte: maxPriceNum,
       },
+    });
+  }
+
+  // Filter by Flash Sale
+  const flashSaleBoolean =
+    typeof flashSale === 'string' ? flashSale === 'true' : undefined;
+
+  if (flashSaleBoolean !== undefined) {
+    andConditions.push({
+      flashSale: flashSaleBoolean,
     });
   }
 
