@@ -83,6 +83,7 @@ model Product {
   description    String
   flashSale      Boolean?  @default(false)
   discount       Float?    @default(0)
+  isDeleted      Boolean   @default(false)
   categoryId     String
   vendorId       String
   orderDetails   OrderDetail[]

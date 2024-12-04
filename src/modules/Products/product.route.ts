@@ -14,13 +14,30 @@ router.post(
   ProductController.createProduct,
 );
 
-router.get('/', ProductController.getAllProducts);
+router.get(
+  '/:productId',
+  auth(
+    UserRole.VENDOR,
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.CUSTOMER,
+  ),
+  ProductController.getSingleProduct,
+);
 
-// router.patch(
-//   '/:categoryId',
-//   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-//   validateRequest(categoryValidation.updateCategoryValidation),
-//   CategoryController.updateCategory,
-// );
+router.patch(
+  '/:productId',
+  auth(UserRole.VENDOR),
+  validateRequest(ProductValidation.updateProductValidation),
+  ProductController.updateProduct,
+);
+
+router.delete(
+  '/:productId',
+  auth(UserRole.VENDOR),
+  ProductController.deleteProduct,
+);
+
+router.get('/', ProductController.getAllProducts);
 
 export const ProductRoutes = router;
