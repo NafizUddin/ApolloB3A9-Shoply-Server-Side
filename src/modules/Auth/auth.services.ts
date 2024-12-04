@@ -11,12 +11,16 @@ import { UserStatus } from '@prisma/client';
 import prisma from '../../utils/prisma';
 
 const loginUser = async (payload: TLoginUser) => {
-  const userData = await prisma.user.findUniqueOrThrow({
+  const userData = await prisma.user.findUnique({
     where: {
       email: payload.email,
       status: UserStatus.ACTIVE,
     },
   });
+
+  if (!userData) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'User not found!');
+  }
 
   //checking if the password is correct
   const isPasswordMatched = await bcrypt.compare(

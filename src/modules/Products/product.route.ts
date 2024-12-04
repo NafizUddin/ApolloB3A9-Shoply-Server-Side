@@ -14,7 +14,7 @@ router.post(
   ProductController.createProduct,
 );
 
-// router.get('/', CategoryController.getAllCategories);
+router.get('/', ProductController.getAllProducts);
 
 // router.patch(
 //   '/:categoryId',
