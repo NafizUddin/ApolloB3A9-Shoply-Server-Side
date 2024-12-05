@@ -14,4 +14,5 @@ export type TProductFilterRequest = {
   maxPrice?: number;
   inventory?: number;
   flashSale?: boolean;
+  category?: string;
 };

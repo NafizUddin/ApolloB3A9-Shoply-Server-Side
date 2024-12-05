@@ -3,6 +3,7 @@ export const productFilterableFields: string[] = [
   'vendorId',
   'minPrice',
   'maxPrice',
+  'category',
   'inventory',
   'flashSale',
 ];
