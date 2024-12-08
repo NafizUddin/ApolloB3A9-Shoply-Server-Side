@@ -103,6 +103,19 @@ const getMyProfile = catchAsync(async (req, res) => {
   });
 });
 
+const getVendorUser = catchAsync(async (req, res) => {
+  const { vendorId } = req.params;
+
+  const result = await userService.getVendorUser(vendorId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Vendor retrieved successfully!',
+    data: result,
+  });
+});
+
 // const updateMyProfie = catchAsync(
 //   async (req: Request & { user?: IAuthUser }, res: Response) => {
 //     const user = req.user;
@@ -125,5 +138,6 @@ export const userController = {
   //   getAllFromDB,
   //   changeProfileStatus,
   getMyProfile,
+  getVendorUser,
   //   updateMyProfie,
 };

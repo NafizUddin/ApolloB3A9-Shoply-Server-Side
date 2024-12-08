@@ -263,9 +263,25 @@ const getMyProfile = async (user: IAuthUser) => {
   return { ...userInfo, ...profileInfo };
 };
 
+const getVendorUser = async (id: string) => {
+  const vendor = await prisma.vendor.findUniqueOrThrow({
+    where: {
+      id,
+    },
+    include: {
+      products: true,
+      followers: true,
+      orders: true,
+    },
+  });
+
+  return vendor;
+};
+
 export const userService = {
   createAdmin,
   createVendor,
   createCustomer,
   getMyProfile,
+  getVendorUser,
 };

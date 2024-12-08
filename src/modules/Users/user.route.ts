@@ -24,6 +24,17 @@ router.get(
   userController.getMyProfile,
 );
 
+router.get(
+  '/get-vendor/:vendorId',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  userController.getVendorUser,
+);
+
 router.post(
   '/create-admin',
   validateRequest(userValidation.createUser),
