@@ -278,10 +278,28 @@ const getVendorUser = async (id: string) => {
   return vendor;
 };
 
+const getCustomerUser = async (email: string) => {
+  const vendor = await prisma.customer.findUniqueOrThrow({
+    where: {
+      email,
+      isDeleted: false,
+    },
+    include: {
+      follows: true,
+      orders: true,
+      reviews: true,
+      recentProductView: true,
+    },
+  });
+
+  return vendor;
+};
+
 export const userService = {
   createAdmin,
   createVendor,
   createCustomer,
   getMyProfile,
   getVendorUser,
+  getCustomerUser,
 };

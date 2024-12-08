@@ -35,6 +35,17 @@ router.get(
   userController.getVendorUser,
 );
 
+router.get(
+  '/get-customer/:email',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  userController.getCustomerUser,
+);
+
 router.post(
   '/create-admin',
   validateRequest(userValidation.createUser),

@@ -116,6 +116,19 @@ const getVendorUser = catchAsync(async (req, res) => {
   });
 });
 
+const getCustomerUser = catchAsync(async (req, res) => {
+  const { email } = req.params;
+
+  const result = await userService.getCustomerUser(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customer retrieved successfully!',
+    data: result,
+  });
+});
+
 // const updateMyProfie = catchAsync(
 //   async (req: Request & { user?: IAuthUser }, res: Response) => {
 //     const user = req.user;
@@ -139,5 +152,6 @@ export const userController = {
   //   changeProfileStatus,
   getMyProfile,
   getVendorUser,
+  getCustomerUser,
   //   updateMyProfie,
 };
