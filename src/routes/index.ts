@@ -3,6 +3,7 @@ import { AuthRoutes } from '../modules/Auth/auth.route';
 import { UserRoutes } from '../modules/Users/user.route';
 import { CategoryRoutes } from '../modules/Category/category.route';
 import { ProductRoutes } from '../modules/Products/product.route';
+import { RecentViewProductRoutes } from '../modules/Recent Products/recentProduct.route';
 
 const router = Router();
 
@@ -22,6 +23,10 @@ const moduleRouter = [
   {
     path: '/products',
     route: ProductRoutes,
+  },
+  {
+    path: '/recent-products',
+    route: RecentViewProductRoutes,
   },
 ];
 
