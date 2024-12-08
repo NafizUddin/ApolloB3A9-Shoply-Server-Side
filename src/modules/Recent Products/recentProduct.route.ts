@@ -16,6 +16,26 @@ router.post(
   RecentProductViewController.createRecentProduct,
 );
 
-router.get('/', RecentProductViewController.getAllRecentViewProducts);
+router.get(
+  '/',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  RecentProductViewController.getAllRecentViewProducts,
+);
+
+router.post(
+  '/',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  RecentProductViewController.deleteRecentProduct,
+);
 
 export const RecentViewProductRoutes = router;

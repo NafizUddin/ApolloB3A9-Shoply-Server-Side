@@ -29,7 +29,22 @@ const getAllRecentViewProducts = catchAsync(async (req, res) => {
   });
 });
 
+const deleteRecentProduct = catchAsync(async (req, res) => {
+  const result = await RecentProductViewServices.deleteRecentView(
+    req.body,
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Removed from Recent Viewed Products!',
+    data: result,
+  });
+});
+
 export const RecentProductViewController = {
   createRecentProduct,
   getAllRecentViewProducts,
+  deleteRecentProduct,
 };
