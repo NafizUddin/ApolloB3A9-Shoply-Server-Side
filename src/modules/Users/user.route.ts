@@ -64,6 +64,14 @@ router.post(
   userController.createCustomer,
 );
 
+router.post('/follow', auth(UserRole.CUSTOMER), userController.followVendor);
+
+router.delete(
+  '/unfollow',
+  auth(UserRole.CUSTOMER),
+  userController.unfollowVendor,
+);
+
 // router.patch(
 //   '/:id/status',
 //   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),

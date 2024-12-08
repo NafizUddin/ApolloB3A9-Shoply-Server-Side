@@ -295,6 +295,81 @@ const getCustomerUser = async (email: string) => {
   return vendor;
 };
 
+const followVendor = async (payload: { vendorId: string }, user: IAuthUser) => {
+  const customer = await prisma.customer.findUnique({
+    where: {
+      email: user?.email,
+      isDeleted: false,
+    },
+  });
+
+  if (!customer) {
+    throw new AppError(httpStatus.NOT_FOUND, "User doesn't exist!");
+  }
+
+  const vendor = await prisma.vendor.findUnique({
+    where: {
+      id: payload.vendorId,
+      isDeleted: false,
+    },
+  });
+
+  if (!vendor) {
+    throw new AppError(httpStatus.NOT_FOUND, "User doesn't exist!");
+  }
+
+  const follow = await prisma.follow.create({
+    data: {
+      customerId: customer.id,
+      vendorId: vendor.id,
+    },
+    include: {
+      customer: true,
+      vendor: true,
+    },
+  });
+
+  return follow;
+};
+
+const unfollowVendor = async (
+  payload: { vendorId: string },
+  user: IAuthUser,
+) => {
+  const customer = await prisma.customer.findUnique({
+    where: {
+      email: user?.email,
+      isDeleted: false,
+    },
+  });
+
+  if (!customer) {
+    throw new AppError(httpStatus.NOT_FOUND, "User doesn't exist!");
+  }
+
+  const vendor = await prisma.vendor.findUnique({
+    where: {
+      id: payload.vendorId,
+      isDeleted: false,
+    },
+  });
+
+  if (!vendor) {
+    throw new AppError(httpStatus.NOT_FOUND, "User doesn't exist!");
+  }
+
+  const unfollow = await prisma.follow.delete({
+    where: {
+      customerId_vendorId: {
+        customerId: customer.id,
+        vendorId: vendor.id,
+      },
+    },
+  });
+
+  return unfollow;
+};
+
 export const userService = {
   createAdmin,
   createVendor,
@@ -302,4 +377,6 @@ export const userService = {
   getMyProfile,
   getVendorUser,
   getCustomerUser,
+  followVendor,
+  unfollowVendor,
 };

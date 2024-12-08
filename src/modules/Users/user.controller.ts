@@ -129,6 +129,34 @@ const getCustomerUser = catchAsync(async (req, res) => {
   });
 });
 
+const followVendor = catchAsync(async (req, res) => {
+  const result = await userService.followVendor(
+    req.body,
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customer followed vendor shop successfully!',
+    data: result,
+  });
+});
+
+const unfollowVendor = catchAsync(async (req, res) => {
+  const result = await userService.unfollowVendor(
+    req.body,
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customer unfollowed vendor shop successfully!',
+    data: result,
+  });
+});
+
 // const updateMyProfie = catchAsync(
 //   async (req: Request & { user?: IAuthUser }, res: Response) => {
 //     const user = req.user;
@@ -153,5 +181,7 @@ export const userController = {
   getMyProfile,
   getVendorUser,
   getCustomerUser,
+  followVendor,
+  unfollowVendor,
   //   updateMyProfie,
 };

@@ -154,6 +154,7 @@ model Follow {
   customer    Customer  @relation(fields: [customerId], references: [id])
   vendor      Vendor    @relation(fields: [vendorId], references: [id])
 
+  @@unique([customerId, vendorId])
   @@map("followers")
 }
 
