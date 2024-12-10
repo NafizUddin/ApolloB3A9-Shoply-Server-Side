@@ -14,7 +14,23 @@ router.post(
   CouponController.createCoupon,
 );
 
-router.get('/', CouponController.getAllCoupons);
+router.post(
+  '/apply-coupon',
+  auth(UserRole.CUSTOMER),
+  validateRequest(couponValidation.applyCouponValidation),
+  CouponController.applyCoupon,
+);
+
+router.get(
+  '/',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.CUSTOMER,
+    UserRole.VENDOR,
+  ),
+  CouponController.getAllCoupons,
+);
 
 router.patch(
   '/:couponId',

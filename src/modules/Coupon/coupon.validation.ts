@@ -18,7 +18,7 @@ const createCouponValidation = z.object({
         required_error: 'Coupon end date is required',
       })
       .regex(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
         'Invalid date format (YYYY-MM-DDTHH:mm:ss.sssZ)',
       )
       .refine(
@@ -57,7 +57,7 @@ const updateCouponValidation = z.object({
         required_error: 'Coupon end date is required',
       })
       .regex(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/,
         'Invalid date format (YYYY-MM-DDTHH:mm:ss.sssZ)',
       )
       .refine(
@@ -74,7 +74,16 @@ const updateCouponValidation = z.object({
   }),
 });
 
+const applyCouponValidation = z.object({
+  body: z.object({
+    coupon: z.string({
+      required_error: 'Coupon code is required',
+    }),
+  }),
+});
+
 export const couponValidation = {
   createCouponValidation,
   updateCouponValidation,
+  applyCouponValidation,
 };

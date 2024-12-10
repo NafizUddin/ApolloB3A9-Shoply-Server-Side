@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { CouponServices } from './coupon.service';
+import { IAuthUser } from '../Users/user.interface';
 
 const createCoupon = catchAsync(async (req, res) => {
   const result = await CouponServices.createCoupon(req.body);
@@ -51,9 +52,24 @@ const deleteCoupon = catchAsync(async (req, res) => {
   });
 });
 
+const applyCoupon = catchAsync(async (req, res) => {
+  const result = await CouponServices.applyCoupon(
+    req.body,
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Coupon applied successfully!',
+    data: result,
+  });
+});
+
 export const CouponController = {
   createCoupon,
   getAllCoupons,
   updateCoupon,
   deleteCoupon,
+  applyCoupon,
 };
