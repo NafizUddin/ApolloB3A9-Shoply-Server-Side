@@ -4,6 +4,7 @@ import { UserRoutes } from '../modules/Users/user.route';
 import { CategoryRoutes } from '../modules/Category/category.route';
 import { ProductRoutes } from '../modules/Products/product.route';
 import { RecentViewProductRoutes } from '../modules/Recent Products/recentProduct.route';
+import { CouponRoutes } from '../modules/Coupon/coupon.route';
 
 const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRouter = [
   {
     path: '/recent-products',
     route: RecentViewProductRoutes,
+  },
+  {
+    path: '/coupons',
+    route: CouponRoutes,
   },
 ];
 

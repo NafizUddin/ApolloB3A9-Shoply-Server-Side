@@ -58,8 +58,22 @@ const createRecentProducts = async (
   return recentProduct;
 };
 
-const getAllRecentProducts = async () => {
+const getAllRecentProducts = async (user: IAuthUser) => {
+  const customer = await prisma.customer.findUnique({
+    where: {
+      email: user?.email,
+      isDeleted: false,
+    },
+  });
+
+  if (!customer) {
+    throw new AppError(httpStatus.NOT_FOUND, "User doesn't exist!");
+  }
+
   const result = await prisma.recentProductView.findMany({
+    where: {
+      customerId: customer.id,
+    },
     include: {
       product: true,
       customer: true,

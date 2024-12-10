@@ -19,7 +19,9 @@ const createRecentProduct = catchAsync(async (req, res) => {
 });
 
 const getAllRecentViewProducts = catchAsync(async (req, res) => {
-  const result = await RecentProductViewServices.getAllRecentProducts();
+  const result = await RecentProductViewServices.getAllRecentProducts(
+    req.user as IAuthUser,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
