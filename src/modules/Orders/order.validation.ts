@@ -11,7 +11,6 @@ const createOrderValidationSchema = z.object({
     transactionId: z.string({
       required_error: 'TransactionId is required',
     }),
-    paymentStatus: z.enum(['PAID', 'UNPAID', 'PENDING']),
     totalPrice: z
       .number({
         required_error: 'Total Price is required',

@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma';
 import { IAuthUser } from '../Users/user.interface';
 import { TOrder } from './order.interface';
 import { initiatePayment } from '../../utils/payment';
+import { PaymentStatus } from '@prisma/client';
 
 const createOrder = async (payload: TOrder, user: IAuthUser) => {
   const customer = await prisma.customer.findUnique({
@@ -64,7 +65,7 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
         customerId: customer.id,
         vendorId: vendor.id,
         transactionId: payload.transactionId,
-        paymentStatus: payload.paymentStatus,
+        paymentStatus: PaymentStatus.PENDING,
         totalPrice: payload.totalPrice,
       },
     });
