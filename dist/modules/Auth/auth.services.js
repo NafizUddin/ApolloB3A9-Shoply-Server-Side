@@ -23,47 +23,16 @@ const verifyJWT_1 = require("../../utils/verifyJWT");
 const appError_1 = __importDefault(require("../../errors/appError"));
 const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../../utils/prisma"));
-const registerUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    // checking if the user is exist
-    const user = yield prisma_1.default.user.findUnique({
-        where: {
-            email: payload.email,
-        },
-    });
-    if (user) {
-        throw new appError_1.default(http_status_1.default.NOT_FOUND, 'This user is already exist!');
-    }
-    const hashedPassword = yield bcryptjs_1.default.hash(payload.password, Number(config_1.default.bcrypt_salt_rounds));
-    const userData = {
-        email: payload.email,
-        password: hashedPassword,
-        name: payload.name,
-        profilePhoto: payload.profilePhoto,
-    };
-    // // create new user
-    const newUser = yield prisma_1.default.user.create({
-        data: userData,
-    });
-    //create token and sent to the  client
-    const jwtPayload = {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        profilePhoto: newUser.profilePhoto,
-        role: newUser.role,
-    };
-    const accessToken = (0, verifyJWT_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
-    const refreshToken = (0, verifyJWT_1.createToken)(jwtPayload, config_1.default.jwt_refresh_secret, config_1.default.jwt_refresh_expires_in);
-    const combinedResult = { accessToken, refreshToken, newUser };
-    return combinedResult;
-});
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const userData = yield prisma_1.default.user.findUniqueOrThrow({
+    const userData = yield prisma_1.default.user.findUnique({
         where: {
             email: payload.email,
             status: client_1.UserStatus.ACTIVE,
         },
     });
+    if (!userData) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'User not found!');
+    }
     //checking if the password is correct
     const isPasswordMatched = yield bcryptjs_1.default.compare(payload.password, userData.password);
     if (!isPasswordMatched) {
@@ -72,9 +41,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     //create token and sent to the  client
     const jwtPayload = {
         id: userData.id,
-        name: userData.name,
         email: userData.email,
-        profilePhoto: userData.profilePhoto,
         role: userData.role,
     };
     const accessToken = (0, verifyJWT_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
@@ -198,9 +165,7 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
     });
     const jwtPayload = {
         id: userData.id,
-        name: userData.name,
         email: userData.email,
-        profilePhoto: userData.profilePhoto,
         role: userData.role,
     };
     const accessToken = (0, verifyJWT_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
@@ -237,7 +202,6 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
 //   sendEmail(user.email, resetUILink);
 // };
 exports.AuthServices = {
-    registerUser,
     loginUser,
     //   resetPassword,
     refreshToken,

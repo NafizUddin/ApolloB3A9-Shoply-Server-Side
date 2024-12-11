@@ -28,15 +28,22 @@ const seedSuperAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
         });
         if (!isSuperAdminExists) {
             const hashedPassword = yield bcryptjs_1.default.hash(config_1.default.admin_password, Number(config_1.default.bcrypt_salt_rounds));
-            yield prisma_1.default.user.create({
-                data: {
-                    name: 'Super Admin',
-                    email: config_1.default.admin_email,
-                    password: hashedPassword,
-                    role: client_1.UserRole.SUPER_ADMIN,
-                    profilePhoto: config_1.default.admin_profile_photo,
-                },
-            });
+            yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+                const user = yield tx.user.create({
+                    data: {
+                        email: config_1.default.admin_email,
+                        password: hashedPassword,
+                        role: client_1.UserRole.SUPER_ADMIN,
+                    },
+                });
+                yield tx.admin.create({
+                    data: {
+                        name: 'Super Admin',
+                        email: user.email,
+                        profilePhoto: config_1.default.admin_profile_photo,
+                    },
+                });
+            }));
             console.log('Super Admin created successfully...');
             console.log('Seeding completed...');
         }

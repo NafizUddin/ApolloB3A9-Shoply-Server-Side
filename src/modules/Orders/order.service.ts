@@ -3,6 +3,7 @@ import AppError from '../../errors/appError';
 import prisma from '../../utils/prisma';
 import { IAuthUser } from '../Users/user.interface';
 import { TOrder } from './order.interface';
+import { initiatePayment } from '../../utils/payment';
 
 const createOrder = async (payload: TOrder, user: IAuthUser) => {
   const customer = await prisma.customer.findUnique({
@@ -110,6 +111,21 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
       },
     });
 
-    return order;
+    const paymentData = {
+      transactionId: payload?.transactionId,
+      amount: payload?.totalPrice,
+      customerName: customer.name,
+      customerEmail: customer.email,
+    };
+
+    const paymentSession = await initiatePayment(paymentData);
+
+    return { paymentSession, order };
   });
+
+  return result;
+};
+
+export const OrderServices = {
+  createOrder,
 };

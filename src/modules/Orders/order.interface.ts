@@ -1,5 +1,4 @@
 export type TOrder = {
-  customerId: string;
   vendorId: string;
   transactionId: string;
   totalPrice: number;

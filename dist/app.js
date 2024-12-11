@@ -11,7 +11,10 @@ const notFound_1 = __importDefault(require("./middlewares/notFound"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const http_status_1 = __importDefault(require("http-status"));
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)({ origin: '*' }));
+app.use((0, cors_1.default)({
+    origin: ['http://localhost:3000'], // Allow requests from this origin
+    credentials: true, // Allow cookies and other credentials
+}));
 app.use((0, cookie_parser_1.default)());
 //parser
 app.use(express_1.default.json());
@@ -22,7 +25,7 @@ app.use('/api', routes_1.default);
 app.get('/', (req, res) => {
     res.status(http_status_1.default.OK).json({
         success: true,
-        message: 'Welcome to Apollo Server!',
+        message: 'Welcome to Shoply Server!',
     });
 });
 //global error handler
