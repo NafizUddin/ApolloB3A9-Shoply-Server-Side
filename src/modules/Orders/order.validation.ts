@@ -21,7 +21,8 @@ const createOrderValidationSchema = z.object({
         required_error: 'Vendor Id is required',
         invalid_type_error: 'Vendor Id must be a string',
       })
-      .trim(),
+      .trim()
+      .optional(),
     orderDetails: z.array(
       z.object({
         productId: z

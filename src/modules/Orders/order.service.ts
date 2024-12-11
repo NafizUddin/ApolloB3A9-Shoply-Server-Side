@@ -61,7 +61,7 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
     }
   }
 
-  const result = await prisma.$transaction(async (tx) => {
+  const order = await prisma.$transaction(async (tx) => {
     const order = await tx.order.create({
       data: {
         customerId: customer.id,
@@ -116,19 +116,19 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
       });
     }
 
-    const paymentData = {
-      transactionId: payload?.transactionId,
-      amount: payload?.totalPrice,
-      customerName: customer.name,
-      customerEmail: customer.email,
-    };
-
-    const paymentSession = await initiatePayment(paymentData);
-
-    return { paymentSession, order };
+    return order;
   });
 
-  return result;
+  const paymentData = {
+    transactionId: payload?.transactionId,
+    amount: payload?.totalPrice,
+    customerName: customer.name,
+    customerEmail: customer.email,
+  };
+
+  const paymentSession = await initiatePayment(paymentData);
+
+  return { paymentSession, order };
 };
 
 export const OrderServices = {

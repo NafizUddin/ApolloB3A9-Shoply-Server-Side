@@ -14,8 +14,7 @@ const createOrder = catchAsync(async (req, res) => {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Order Created Successfully',
-    data: result?.order,
-    paymentSession: result?.paymentSession,
+    data: result,
   });
 });
 

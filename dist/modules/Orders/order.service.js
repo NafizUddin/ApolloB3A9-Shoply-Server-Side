@@ -12,9 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.OrderServices = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const appError_1 = __importDefault(require("../../errors/appError"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
+const payment_1 = require("../../utils/payment");
+const client_1 = require("@prisma/client");
 const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const customer = yield prisma_1.default.customer.findUnique({
         where: {
@@ -34,35 +37,36 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
     if (!vendor) {
         throw new appError_1.default(http_status_1.default.NOT_FOUND, "Vendor doesn't exist!");
     }
-    const existingCoupon = yield prisma_1.default.coupon.findUnique({
-        where: {
-            code: payload.coupon,
-        },
-    });
-    if (!existingCoupon) {
-        throw new appError_1.default(http_status_1.default.NOT_FOUND, 'Coupon not found!');
-    }
-    if (new Date() > existingCoupon.endDate) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'Coupon is inactive or expired!');
-    }
-    const alreadyRedeemed = yield prisma_1.default.customerCoupon.findUnique({
-        where: {
-            customerId_couponId: {
-                customerId: customer.id,
-                couponId: existingCoupon.id,
+    let existingCoupon;
+    if (payload.coupon) {
+        existingCoupon = yield prisma_1.default.coupon.findUnique({
+            where: { code: payload.coupon },
+        });
+        if (!existingCoupon) {
+            throw new appError_1.default(http_status_1.default.NOT_FOUND, 'Coupon not found!');
+        }
+        if (new Date() > existingCoupon.endDate) {
+            throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'Coupon is inactive or expired!');
+        }
+        const alreadyRedeemed = yield prisma_1.default.customerCoupon.findUnique({
+            where: {
+                customerId_couponId: {
+                    customerId: customer.id,
+                    couponId: existingCoupon.id,
+                },
             },
-        },
-    });
-    if (alreadyRedeemed) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'Coupon already redeemed!');
+        });
+        if (alreadyRedeemed) {
+            throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'Coupon already redeemed!');
+        }
     }
-    const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+    const order = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
         const order = yield tx.order.create({
             data: {
                 customerId: customer.id,
                 vendorId: vendor.id,
                 transactionId: payload.transactionId,
-                paymentStatus: payload.paymentStatus,
+                paymentStatus: client_1.PaymentStatus.PENDING,
                 totalPrice: payload.totalPrice,
             },
         });
@@ -88,18 +92,31 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
                 },
             });
         }
-        yield tx.coupon.update({
-            where: { id: existingCoupon.id },
-            data: { usedCount: { increment: 1 } },
-        });
-        yield tx.customerCoupon.create({
-            data: {
-                customerId: customer.id,
-                couponId: existingCoupon.id,
-                redeemedAt: new Date(),
-                isRedeemed: true,
-            },
-        });
+        if (existingCoupon) {
+            yield tx.coupon.update({
+                where: { id: existingCoupon.id },
+                data: { usedCount: { increment: 1 } },
+            });
+            yield tx.customerCoupon.create({
+                data: {
+                    customerId: customer.id,
+                    couponId: existingCoupon.id,
+                    redeemedAt: new Date(),
+                    isRedeemed: true,
+                },
+            });
+        }
         return order;
     }));
+    const paymentData = {
+        transactionId: payload === null || payload === void 0 ? void 0 : payload.transactionId,
+        amount: payload === null || payload === void 0 ? void 0 : payload.totalPrice,
+        customerName: customer.name,
+        customerEmail: customer.email,
+    };
+    const paymentSession = yield (0, payment_1.initiatePayment)(paymentData);
+    return { paymentSession, order };
 });
+exports.OrderServices = {
+    createOrder,
+};
