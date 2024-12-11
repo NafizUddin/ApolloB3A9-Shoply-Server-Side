@@ -14,12 +14,12 @@ router.post(
   CouponController.createCoupon,
 );
 
-router.post(
-  '/apply-coupon',
-  auth(UserRole.CUSTOMER),
-  validateRequest(couponValidation.applyCouponValidation),
-  CouponController.applyCoupon,
-);
+// router.post(
+//   '/apply-coupon',
+//   auth(UserRole.CUSTOMER),
+//   validateRequest(couponValidation.applyCouponValidation),
+//   CouponController.applyCoupon,
+// );
 
 router.get(
   '/',
