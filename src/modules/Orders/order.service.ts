@@ -4,7 +4,7 @@ import prisma from '../../utils/prisma';
 import { IAuthUser } from '../Users/user.interface';
 import { TOrder } from './order.interface';
 import { initiatePayment } from '../../utils/payment';
-import { PaymentStatus } from '@prisma/client';
+import { Coupon, PaymentStatus } from '@prisma/client';
 
 const createOrder = async (payload: TOrder, user: IAuthUser) => {
   const customer = await prisma.customer.findUnique({
@@ -29,34 +29,36 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
     throw new AppError(httpStatus.NOT_FOUND, "Vendor doesn't exist!");
   }
 
-  const existingCoupon = await prisma.coupon.findUnique({
-    where: {
-      code: payload.coupon,
-    },
-  });
+  let existingCoupon: null | Coupon;
 
-  if (!existingCoupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found!');
-  }
+  if (payload.coupon) {
+    existingCoupon = await prisma.coupon.findUnique({
+      where: { code: payload.coupon },
+    });
 
-  if (new Date() > existingCoupon.endDate) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Coupon is inactive or expired!',
-    );
-  }
+    if (!existingCoupon) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found!');
+    }
 
-  const alreadyRedeemed = await prisma.customerCoupon.findUnique({
-    where: {
-      customerId_couponId: {
-        customerId: customer.id,
-        couponId: existingCoupon.id,
+    if (new Date() > existingCoupon.endDate) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'Coupon is inactive or expired!',
+      );
+    }
+
+    const alreadyRedeemed = await prisma.customerCoupon.findUnique({
+      where: {
+        customerId_couponId: {
+          customerId: customer.id,
+          couponId: existingCoupon.id,
+        },
       },
-    },
-  });
+    });
 
-  if (alreadyRedeemed) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Coupon already redeemed!');
+    if (alreadyRedeemed) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Coupon already redeemed!');
+    }
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -98,19 +100,21 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
       });
     }
 
-    await tx.coupon.update({
-      where: { id: existingCoupon.id },
-      data: { usedCount: { increment: 1 } },
-    });
+    if (existingCoupon) {
+      await tx.coupon.update({
+        where: { id: existingCoupon.id },
+        data: { usedCount: { increment: 1 } },
+      });
 
-    await tx.customerCoupon.create({
-      data: {
-        customerId: customer.id,
-        couponId: existingCoupon.id,
-        redeemedAt: new Date(),
-        isRedeemed: true,
-      },
-    });
+      await tx.customerCoupon.create({
+        data: {
+          customerId: customer.id,
+          couponId: existingCoupon.id,
+          redeemedAt: new Date(),
+          isRedeemed: true,
+        },
+      });
+    }
 
     const paymentData = {
       transactionId: payload?.transactionId,
