@@ -157,20 +157,33 @@ const unfollowVendor = catchAsync(async (req, res) => {
   });
 });
 
-// const updateMyProfie = catchAsync(
-//   async (req: Request & { user?: IAuthUser }, res: Response) => {
-//     const user = req.user;
+const updateVendor = catchAsync(async (req, res) => {
+  const result = await userService.updateVendor(
+    req.body,
+    req.user as IAuthUser,
+  );
 
-//     const result = await userService.updateMyProfie(user as IAuthUser, req);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Vendor profile updated successfully!',
+    data: result,
+  });
+});
 
-//     sendResponse(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: 'My profile updated!',
-//       data: result,
-//     });
-//   },
-// );
+const updateCustomer = catchAsync(async (req, res) => {
+  const result = await userService.updateCustomer(
+    req.body,
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customer profile updated successfully!',
+    data: result,
+  });
+});
 
 export const userController = {
   createAdmin,
@@ -183,5 +196,6 @@ export const userController = {
   getCustomerUser,
   followVendor,
   unfollowVendor,
-  //   updateMyProfie,
+  updateCustomer,
+  updateVendor,
 };

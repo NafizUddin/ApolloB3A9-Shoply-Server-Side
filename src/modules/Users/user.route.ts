@@ -72,6 +72,18 @@ router.delete(
   userController.unfollowVendor,
 );
 
+router.patch(
+  '/update-customer',
+  auth(UserRole.CUSTOMER),
+  userController.updateCustomer,
+);
+
+router.patch(
+  '/update-vendor',
+  auth(UserRole.VENDOR),
+  userController.updateVendor,
+);
+
 // router.patch(
 //   '/:id/status',
 //   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
