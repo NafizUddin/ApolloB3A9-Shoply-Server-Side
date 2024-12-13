@@ -110,10 +110,11 @@ model Category {
 }
 
 model Order {
-  id         String   @id @default(uuid())
-  customerId String
-  vendorId   String
-  totalPrice Float
+  id           String   @id @default(uuid())
+  customerId   String
+  vendorId     String
+  totalPrice   Float
+  deliveryAddress String
   paymentStatus PaymentStatus
   transactionId      String        @unique
   orderDetails OrderDetail[]
