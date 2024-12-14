@@ -181,6 +181,11 @@ const getAllOrders = async (
     include: {
       vendor: true,
       customer: true,
+      orderDetails: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 
