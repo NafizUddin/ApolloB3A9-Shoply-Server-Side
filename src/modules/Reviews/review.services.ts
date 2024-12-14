@@ -50,6 +50,10 @@ const getReviewsByProductId = async (query: Record<string, string>) => {
     where: {
       productId: query.productId,
     },
+    include: {
+      product: true,
+      customer: true,
+    },
   });
 
   return result;

@@ -185,6 +185,7 @@ const getProductById = async (productId: string) => {
       category: true,
       vendor: true,
       reviews: true,
+      orderDetails: true,
     },
   });
 

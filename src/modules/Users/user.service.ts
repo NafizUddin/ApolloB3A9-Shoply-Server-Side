@@ -254,7 +254,11 @@ const getMyProfile = async (user: IAuthUser) => {
       include: {
         products: true,
         orders: true,
-        followers: true,
+        followers: {
+          include: {
+            customer: true,
+          },
+        },
       },
     });
   } else if (userInfo.role === UserRole.CUSTOMER) {
@@ -266,7 +270,11 @@ const getMyProfile = async (user: IAuthUser) => {
         customerCoupons: true,
         orders: true,
         reviews: true,
-        follows: true,
+        follows: {
+          include: {
+            vendor: true,
+          },
+        },
         recentProductView: true,
       },
     });
