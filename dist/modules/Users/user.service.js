@@ -181,12 +181,32 @@ const getMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
             where: {
                 email: userInfo.email,
             },
+            include: {
+                products: true,
+                orders: true,
+                followers: {
+                    include: {
+                        customer: true,
+                    },
+                },
+            },
         });
     }
     else if (userInfo.role === client_1.UserRole.CUSTOMER) {
         profileInfo = yield prisma_1.default.customer.findUnique({
             where: {
                 email: userInfo.email,
+            },
+            include: {
+                customerCoupons: true,
+                orders: true,
+                reviews: true,
+                follows: {
+                    include: {
+                        vendor: true,
+                    },
+                },
+                recentProductView: true,
             },
         });
     }
@@ -280,6 +300,53 @@ const unfollowVendor = (payload, user) => __awaiter(void 0, void 0, void 0, func
     });
     return unfollow;
 });
+const updateCustomer = (payload, userData) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = yield prisma_1.default.customer.findUnique({
+        where: {
+            email: userData === null || userData === void 0 ? void 0 : userData.email,
+            isDeleted: false,
+        },
+    });
+    if (!customer) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "User doesn't exist!");
+    }
+    const result = yield prisma_1.default.customer.update({
+        where: {
+            email: customer.email,
+        },
+        data: payload,
+        include: {
+            follows: true,
+            orders: true,
+            reviews: true,
+            recentProductView: true,
+        },
+    });
+    return result;
+});
+const updateVendor = (payload, userData) => __awaiter(void 0, void 0, void 0, function* () {
+    const vendor = yield prisma_1.default.vendor.findUnique({
+        where: {
+            email: userData === null || userData === void 0 ? void 0 : userData.email,
+            isDeleted: false,
+        },
+    });
+    if (!vendor) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "User doesn't exist!");
+    }
+    const result = yield prisma_1.default.vendor.update({
+        where: {
+            email: vendor.email,
+        },
+        data: payload,
+        include: {
+            orders: true,
+            products: true,
+            followers: true,
+        },
+    });
+    return result;
+});
 exports.userService = {
     createAdmin,
     createVendor,
@@ -289,4 +356,6 @@ exports.userService = {
     getCustomerUser,
     followVendor,
     unfollowVendor,
+    updateCustomer,
+    updateVendor,
 };

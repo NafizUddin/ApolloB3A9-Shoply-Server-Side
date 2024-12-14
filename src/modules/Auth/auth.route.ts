@@ -15,17 +15,17 @@ router.post(
 
 // router.post('/social-login', AuthControllers.socialLogin);
 
-// router.post(
-//   '/forget-password',
-//   validateRequest(AuthValidation.forgetPasswordValidationSchema),
-//   AuthControllers.forgetPassword,
-// );
+router.post(
+  '/forget-password',
+  validateRequest(AuthValidation.forgetPasswordValidationSchema),
+  AuthControllers.forgotPassword,
+);
 
-// router.post(
-//   '/reset-password',
-//   validateRequest(AuthValidation.changePasswordValidationSchema),
-//   AuthControllers.resetPassword,
-// );
+router.post(
+  '/reset-password',
+  validateRequest(AuthValidation.changePasswordValidationSchema),
+  AuthControllers.resetPassword,
+);
 
 router.post(
   '/refresh-token',

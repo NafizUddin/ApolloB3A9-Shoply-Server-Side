@@ -136,18 +136,24 @@ const unfollowVendor = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
-// const updateMyProfie = catchAsync(
-//   async (req: Request & { user?: IAuthUser }, res: Response) => {
-//     const user = req.user;
-//     const result = await userService.updateMyProfie(user as IAuthUser, req);
-//     sendResponse(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: 'My profile updated!',
-//       data: result,
-//     });
-//   },
-// );
+const updateVendor = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.userService.updateVendor(req.body, req.user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Vendor profile updated successfully!',
+        data: result,
+    });
+}));
+const updateCustomer = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.userService.updateCustomer(req.body, req.user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Customer profile updated successfully!',
+        data: result,
+    });
+}));
 exports.userController = {
     createAdmin,
     createVendor,
@@ -159,5 +165,6 @@ exports.userController = {
     getCustomerUser,
     followVendor,
     unfollowVendor,
-    //   updateMyProfie,
+    updateCustomer,
+    updateVendor,
 };

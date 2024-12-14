@@ -23,6 +23,7 @@ const verifyJWT_1 = require("../../utils/verifyJWT");
 const appError_1 = __importDefault(require("../../errors/appError"));
 const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../../utils/prisma"));
+const sendEmail_1 = require("../../utils/sendEmail");
 const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = yield prisma_1.default.user.findUnique({
         where: {
@@ -173,6 +174,52 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
         accessToken,
     };
 });
+const changePassword = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const userData = yield prisma_1.default.user.findUnique({
+        where: {
+            email: user === null || user === void 0 ? void 0 : user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+    });
+    if (!userData) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "User doesn't exists!");
+    }
+    const isCorrectPassword = yield bcryptjs_1.default.compare(payload.oldPassword, userData.password);
+    if (!isCorrectPassword) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'Password incorrect!');
+    }
+    const hashedPassword = yield bcryptjs_1.default.hash(payload.newPassword, Number(config_1.default.bcrypt_salt_rounds));
+    yield prisma_1.default.user.update({
+        where: {
+            email: userData.email,
+        },
+        data: {
+            password: hashedPassword,
+        },
+    });
+    return {
+        message: 'Password changed successfully!',
+    };
+});
+const forgotPassword = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const userData = yield prisma_1.default.user.findUnique({
+        where: {
+            email: payload === null || payload === void 0 ? void 0 : payload.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+    });
+    if (!userData) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "User doesn't exists!");
+    }
+    const jwtPayload = {
+        id: userData.id,
+        email: userData.email,
+        role: userData.role,
+    };
+    const resetToken = (0, verifyJWT_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, '20m');
+    const resetUILink = `${config_1.default.reset_pass_ui_link}?email=${userData.email}&token=${resetToken} `;
+    yield (0, sendEmail_1.sendEmail)(userData === null || userData === void 0 ? void 0 : userData.email, resetUILink);
+});
 // const forgetPassword = async (userEmail: string) => {
 //   const user = await User.isUserExistsByEmail(userEmail);
 //   if (!user) {
@@ -203,8 +250,8 @@ const refreshToken = (token) => __awaiter(void 0, void 0, void 0, function* () {
 // };
 exports.AuthServices = {
     loginUser,
-    //   resetPassword,
+    changePassword,
     refreshToken,
     //   socialLogin,
-    //   forgetPassword,
+    forgotPassword,
 };

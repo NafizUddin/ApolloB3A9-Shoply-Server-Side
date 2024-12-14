@@ -24,6 +24,8 @@ router.post('/create-vendor', (0, validateRequest_1.default)(user_validation_1.u
 router.post('/create-customer', (0, validateRequest_1.default)(user_validation_1.userValidation.createUser), user_controller_1.userController.createCustomer);
 router.post('/follow', (0, auth_1.default)(client_1.UserRole.CUSTOMER), user_controller_1.userController.followVendor);
 router.delete('/unfollow', (0, auth_1.default)(client_1.UserRole.CUSTOMER), user_controller_1.userController.unfollowVendor);
+router.patch('/update-customer', (0, auth_1.default)(client_1.UserRole.CUSTOMER), user_controller_1.userController.updateCustomer);
+router.patch('/update-vendor', (0, auth_1.default)(client_1.UserRole.VENDOR), user_controller_1.userController.updateVendor);
 // router.patch(
 //   '/:id/status',
 //   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),

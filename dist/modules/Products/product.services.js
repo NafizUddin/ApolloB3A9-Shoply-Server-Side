@@ -165,6 +165,7 @@ const getProductById = (productId) => __awaiter(void 0, void 0, void 0, function
             category: true,
             vendor: true,
             reviews: true,
+            orderDetails: true,
         },
     });
     return product;

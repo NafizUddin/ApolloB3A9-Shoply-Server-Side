@@ -13,11 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderServices = void 0;
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const http_status_1 = __importDefault(require("http-status"));
 const appError_1 = __importDefault(require("../../errors/appError"));
 const prisma_1 = __importDefault(require("../../utils/prisma"));
 const payment_1 = require("../../utils/payment");
 const client_1 = require("@prisma/client");
+const calculatePagination_1 = require("../../utils/calculatePagination");
 const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, function* () {
     const customer = yield prisma_1.default.customer.findUnique({
         where: {
@@ -65,6 +67,7 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
             data: {
                 customerId: customer.id,
                 vendorId: vendor.id,
+                deliveryAddress: payload.deliveryAddress,
                 transactionId: payload.transactionId,
                 paymentStatus: client_1.PaymentStatus.PENDING,
                 totalPrice: payload.totalPrice,
@@ -117,6 +120,58 @@ const createOrder = (payload, user) => __awaiter(void 0, void 0, void 0, functio
     const paymentSession = yield (0, payment_1.initiatePayment)(paymentData);
     return { paymentSession, order };
 });
+const getAllOrders = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { limit, page, skip } = (0, calculatePagination_1.calculatePagination)(options);
+    const andConditions = [];
+    if (Object.keys(filters).length > 0) {
+        const filterConditions = Object.keys(filters).map((key) => ({
+            [key]: {
+                equals: filters[key],
+            },
+        }));
+        andConditions.push(...filterConditions);
+    }
+    andConditions.push({
+        vendor: {
+            isDeleted: false,
+        },
+    });
+    andConditions.push({
+        customer: {
+            isDeleted: false,
+        },
+    });
+    const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
+    const result = yield prisma_1.default.order.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: options.sortBy && options.sortOrder
+            ? { [options.sortBy]: options.sortOrder }
+            : { paymentStatus: 'asc' },
+        include: {
+            vendor: true,
+            customer: true,
+            orderDetails: {
+                include: {
+                    product: true,
+                },
+            },
+        },
+    });
+    const total = yield prisma_1.default.order.count({
+        where: whereConditions,
+    });
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+        },
+        data: result,
+    };
+});
 exports.OrderServices = {
     createOrder,
+    getAllOrders,
 };

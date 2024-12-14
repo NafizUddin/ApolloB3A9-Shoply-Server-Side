@@ -18,6 +18,12 @@ const createOrderValidationSchema = zod_1.z.object({
             required_error: 'Total Price is required',
         })
             .nonnegative('Total Price must be a non-negative number'),
+        deliveryAddress: zod_1.z
+            .string({
+            required_error: 'Delivery address is required',
+            invalid_type_error: 'Delivery address must be a string',
+        })
+            .trim(),
         coupon: zod_1.z
             .string({
             required_error: 'Vendor Id is required',
