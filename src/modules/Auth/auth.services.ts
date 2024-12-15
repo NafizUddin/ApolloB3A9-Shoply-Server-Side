@@ -288,6 +288,8 @@ const forgotPassword = async (payload: { email: string }) => {
 
   const resetUILink = `${config.reset_pass_ui_link}?email=${userData.email}&token=${resetToken} `;
 
+  console.log(resetUILink);
+
   await sendEmail(userData?.email, resetUILink);
 };
 

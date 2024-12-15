@@ -3,22 +3,21 @@ import nodemailer from 'nodemailer';
 import config from '../config';
 
 export const sendEmail = async (to: string, resetLink: string) => {
+  console.log(config.nodemailer_email, config.nodemailer_app_pass);
+
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
-    secure: config.NODE_ENV === 'production',
+    secure: false,
     auth: {
       user: config.nodemailer_email,
       pass: config.nodemailer_app_pass,
-    },
-    tls: {
-      rejectUnauthorized: false,
     },
   });
 
   try {
     await transporter.sendMail({
-      from: '"Shoply" <nafizuddin.ctg@gmail.com>', // sender address
+      from: 'nafizuddin.ctg@gmail.com', // sender address
       to, // receiver address
       subject: 'Password Reset Request', // subject
       text: `Dear User,

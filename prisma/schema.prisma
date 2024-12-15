@@ -50,6 +50,7 @@ model Vendor {
   products      Product[]
   orders        Order[]
   followers     Follow[]
+  review        Review[]
 
   user User @relation(fields: [email], references: [email])
 
@@ -142,11 +143,13 @@ model Review {
   id         String   @id @default(uuid())
   productId   String
   customerId  String
+  vendorId    String
   rating      Int
   comment     String?
 
   product     Product   @relation(fields: [productId], references: [id])
   customer    Customer  @relation(fields: [customerId], references: [id])
+  vendor      Vendor    @relation(fields: [vendorId], references: [id])
 
   @@map("reviews")
 }

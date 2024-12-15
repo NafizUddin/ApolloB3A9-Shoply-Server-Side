@@ -97,8 +97,7 @@ const changePassword = catchAsync(async (req, res) => {
 });
 
 const forgotPassword = catchAsync(async (req, res) => {
-  const userEmail = req.body.email;
-  const result = await AuthServices.forgotPassword(userEmail);
+  const result = await AuthServices.forgotPassword(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

@@ -18,7 +18,7 @@ router.post(
 // router.post('/social-login', AuthControllers.socialLogin);
 
 router.post(
-  '/forget-password',
+  '/forgot-password',
   validateRequest(AuthValidation.forgetPasswordValidationSchema),
   AuthControllers.forgotPassword,
 );
