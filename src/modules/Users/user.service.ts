@@ -252,7 +252,11 @@ const getMyProfile = async (user: IAuthUser) => {
         email: userInfo.email,
       },
       include: {
-        products: true,
+        products: {
+          include: {
+            category: true,
+          },
+        },
         orders: true,
         followers: {
           include: {
