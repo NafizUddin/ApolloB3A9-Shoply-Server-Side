@@ -23,4 +23,6 @@ exports.default = {
     payment_url: process.env.PAYMENT_URL,
     payment_verify_url: process.env.PAYMENT_VERIFY_URL,
     reset_pass_ui_link: process.env.RESET_PASS_UI_LINK,
+    nodemailer_email: process.env.NODEMAILER_EMAIL,
+    nodemailer_app_pass: process.env.NODEMAILER_APP_PASS,
 };

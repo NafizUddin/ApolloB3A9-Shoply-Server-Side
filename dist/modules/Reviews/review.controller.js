@@ -34,7 +34,7 @@ const getAllReviews = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         }
         return acc;
     }, {});
-    const result = yield review_services_1.ReviewServices.getReviewsByProductId(query);
+    const result = yield review_services_1.ReviewServices.getAllReviews(query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

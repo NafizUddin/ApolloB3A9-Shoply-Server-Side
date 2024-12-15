@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthServices = void 0;
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -209,7 +210,7 @@ const forgotPassword = (payload) => __awaiter(void 0, void 0, void 0, function* 
         },
     });
     if (!userData) {
-        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "User doesn't exists!");
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "User doesn't exist!");
     }
     const jwtPayload = {
         id: userData.id,
@@ -218,40 +219,42 @@ const forgotPassword = (payload) => __awaiter(void 0, void 0, void 0, function* 
     };
     const resetToken = (0, verifyJWT_1.createToken)(jwtPayload, config_1.default.jwt_access_secret, '20m');
     const resetUILink = `${config_1.default.reset_pass_ui_link}?email=${userData.email}&token=${resetToken} `;
+    console.log(resetUILink);
     yield (0, sendEmail_1.sendEmail)(userData === null || userData === void 0 ? void 0 : userData.email, resetUILink);
 });
-// const forgetPassword = async (userEmail: string) => {
-//   const user = await User.isUserExistsByEmail(userEmail);
-//   if (!user) {
-//     throw new AppError(httpStatus.NOT_FOUND, 'User does not exist!');
-//   }
-//   const jwtPayload = {
-//     _id: user._id,
-//     name: user.name,
-//     email: user.email,
-//     profilePhoto: user.profilePhoto,
-//     role: user.role,
-//     status: user.status,
-//     followers: user.followers,
-//     following: user.following,
-//     isVerified: user.isVerified,
-//     totalUpvote: user.totalUpvote,
-//     postCount: user.postCount,
-//     premiumStart: user.premiumStart,
-//     premiumEnd: user.premiumEnd,
-//   };
-//   const resetToken = createToken(
-//     jwtPayload,
-//     config.jwt_access_secret as string,
-//     '20m',
-//   );
-//   const resetUILink = `${config.reset_pass_ui_link}?email=${user.email}&token=${resetToken} `;
-//   sendEmail(user.email, resetUILink);
-// };
+const resetPassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log({ token, payload });
+    const userData = yield prisma_1.default.user.findUnique({
+        where: {
+            email: payload.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+    });
+    if (!userData) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, "User doesn't exist!");
+    }
+    const decoded = (0, verifyJWT_1.verifyToken)(token, config_1.default.jwt_access_secret);
+    const { email } = decoded;
+    if ((payload === null || payload === void 0 ? void 0 : payload.email) !== email) {
+        throw new appError_1.default(http_status_1.default.FORBIDDEN, 'You are forbidden!');
+    }
+    // hash password
+    const newHashedPassword = yield bcryptjs_1.default.hash(payload.newPassword, Number(config_1.default.bcrypt_salt_rounds));
+    // update into database
+    yield prisma_1.default.user.update({
+        where: {
+            email: payload.email,
+        },
+        data: {
+            password: newHashedPassword,
+        },
+    });
+});
 exports.AuthServices = {
     loginUser,
     changePassword,
     refreshToken,
     //   socialLogin,
     forgotPassword,
+    resetPassword,
 };

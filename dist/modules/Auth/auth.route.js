@@ -31,18 +31,13 @@ const express_1 = __importDefault(require("express"));
 const validateRequest_1 = __importStar(require("../../middlewares/validateRequest"));
 const auth_controller_1 = require("./auth.controller");
 const auth_validation_1 = require("./auth.validation");
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const client_1 = require("@prisma/client");
 const router = express_1.default.Router();
 router.post('/login', (0, validateRequest_1.default)(auth_validation_1.AuthValidation.loginValidationSchema), auth_controller_1.AuthControllers.loginUser);
 // router.post('/social-login', AuthControllers.socialLogin);
-// router.post(
-//   '/forget-password',
-//   validateRequest(AuthValidation.forgetPasswordValidationSchema),
-//   AuthControllers.forgetPassword,
-// );
-// router.post(
-//   '/reset-password',
-//   validateRequest(AuthValidation.changePasswordValidationSchema),
-//   AuthControllers.resetPassword,
-// );
+router.post('/forgot-password', (0, validateRequest_1.default)(auth_validation_1.AuthValidation.forgetPasswordValidationSchema), auth_controller_1.AuthControllers.forgotPassword);
+router.post('/reset-password', (0, validateRequest_1.default)(auth_validation_1.AuthValidation.resetPasswordValidationSchema), auth_controller_1.AuthControllers.resetPassword);
 router.post('/refresh-token', (0, validateRequest_1.validateRequestCookies)(auth_validation_1.AuthValidation.refreshTokenValidationSchema), auth_controller_1.AuthControllers.refreshToken);
+router.post('/change-password', (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.CUSTOMER, client_1.UserRole.VENDOR), (0, validateRequest_1.default)(auth_validation_1.AuthValidation.changePasswordValidationSchema), auth_controller_1.AuthControllers.changePassword);
 exports.AuthRoutes = router;

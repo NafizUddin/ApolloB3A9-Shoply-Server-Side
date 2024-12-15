@@ -30,9 +30,16 @@ const forgetPasswordValidationSchema = zod_1.z.object({
         email: zod_1.z.string().email('Please enter a valid email address!'),
     }),
 });
+const changePasswordValidationSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        oldPassword: zod_1.z.string({ required_error: 'New Password is required' }),
+        newPassword: zod_1.z.string({ required_error: 'New Password is required' }),
+    }),
+});
 exports.AuthValidation = {
     loginValidationSchema,
-    changePasswordValidationSchema: resetPasswordValidationSchema,
+    resetPasswordValidationSchema,
     refreshTokenValidationSchema,
+    changePasswordValidationSchema,
     forgetPasswordValidationSchema,
 };

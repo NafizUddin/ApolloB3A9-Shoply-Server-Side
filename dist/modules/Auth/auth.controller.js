@@ -93,10 +93,30 @@ const changePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const forgotPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield auth_services_1.AuthServices.forgotPassword(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Reset link is generated successfully!',
+        data: result,
+    });
+}));
+const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = req.headers.authorization;
+    const result = yield auth_services_1.AuthServices.resetPassword(req.body, token);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Password reset successful!',
+        data: result,
+    });
+}));
 exports.AuthControllers = {
     loginUser,
     changePassword,
     refreshToken,
     // socialLogin,
-    // forgetPassword,
+    forgotPassword,
+    resetPassword,
 };

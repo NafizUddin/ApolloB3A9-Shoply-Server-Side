@@ -34,33 +34,66 @@ const createReview = (payload, user) => __awaiter(void 0, void 0, void 0, functi
     if (!product) {
         throw new appError_1.default(http_status_1.default.NOT_FOUND, "Product doesn't exist!");
     }
+    const vendor = yield prisma_1.default.vendor.findUnique({
+        where: {
+            id: payload.vendorId,
+        },
+    });
+    if (!vendor) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "Vendor doesn't exist!");
+    }
     const reviewInfo = Object.assign(Object.assign({}, payload), { customerId: customer.id });
     const result = yield prisma_1.default.review.create({
         data: reviewInfo,
     });
     return result;
 });
-const getReviewsByProductId = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const product = yield prisma_1.default.product.findUnique({
-        where: {
-            id: query.productId,
-        },
-    });
-    if (!product) {
-        throw new appError_1.default(http_status_1.default.NOT_FOUND, "Product doesn't exist!");
+const getAllReviews = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!query.productId && !query.vendorId) {
+        throw new appError_1.default(http_status_1.default.BAD_REQUEST, 'Either productId or vendorId must be provided!');
     }
-    const result = yield prisma_1.default.review.findMany({
-        where: {
-            productId: query.productId,
-        },
-        include: {
-            product: true,
-            customer: true,
-        },
-    });
-    return result;
+    if (query.productId) {
+        const product = yield prisma_1.default.product.findUnique({
+            where: {
+                id: query.productId,
+            },
+        });
+        if (!product) {
+            throw new appError_1.default(http_status_1.default.NOT_FOUND, "Product doesn't exist!");
+        }
+        return prisma_1.default.review.findMany({
+            where: {
+                productId: query.productId,
+            },
+            include: {
+                product: true,
+                customer: true,
+                vendor: true,
+            },
+        });
+    }
+    if (query.vendorId) {
+        const vendor = yield prisma_1.default.vendor.findUnique({
+            where: {
+                id: query.vendorId,
+            },
+        });
+        if (!vendor) {
+            throw new appError_1.default(http_status_1.default.NOT_FOUND, "Vendor doesn't exist!");
+        }
+        return prisma_1.default.review.findMany({
+            where: {
+                vendorId: query.vendorId,
+            },
+            include: {
+                product: true,
+                customer: true,
+                vendor: true,
+            },
+        });
+    }
 });
 exports.ReviewServices = {
     createReview,
-    getReviewsByProductId,
+    getAllReviews,
 };
