@@ -4,6 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { userService } from './user.service';
 import config from '../../config';
 import { IAuthUser } from './user.interface';
+import pick from '../../utils/pick';
 
 const createAdmin = catchAsync(async (req, res) => {
   const result = await userService.createAdmin(req.body);
@@ -64,21 +65,20 @@ const createCustomer = catchAsync(async (req, res) => {
   });
 });
 
-// const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-//   // console.log(req.query)
-//   const filters = pick(req.query, userFilterableFields);
-//   const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+const getAllUsers = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ['role', 'status']); // Filterable fields for users
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']); // Pagination and sorting options
 
-//   const result = await userService.getAllFromDB(filters, options);
+  const result = await userService.getAllUsers(filters, options);
 
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Users data fetched!',
-//     meta: result.meta,
-//     data: result.data,
-//   });
-// });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Users retrieved successfully!',
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 // const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
 //   const { id } = req.params;
@@ -189,7 +189,7 @@ export const userController = {
   createAdmin,
   createVendor,
   createCustomer,
-  //   getAllFromDB,
+  getAllUsers,
   //   changeProfileStatus,
   getMyProfile,
   getVendorUser,

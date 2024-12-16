@@ -7,11 +7,11 @@ import { UserRole } from '@prisma/client';
 
 const router = express.Router();
 
-// router.get(
-//   '/',
-//   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-//   userController.getAllFromDB,
-// );
+router.get(
+  '/',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.getAllUsers,
+);
 
 router.get(
   '/me',

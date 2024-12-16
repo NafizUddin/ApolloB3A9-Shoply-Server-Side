@@ -3,9 +3,13 @@ import AppError from '../../errors/appError';
 import prisma from '../../utils/prisma';
 import config from '../../config';
 import bcrypt from 'bcryptjs';
-import { UserRole, UserStatus } from '@prisma/client';
+import { Prisma, UserRole, UserStatus } from '@prisma/client';
 import { createToken } from '../../utils/verifyJWT';
 import { IAuthUser } from './user.interface';
+import {
+  calculatePagination,
+  IPaginationOptions,
+} from '../../utils/calculatePagination';
 
 const createAdmin = async (payload: {
   name: string;
@@ -465,6 +469,59 @@ const updateVendor = async (
   return result;
 };
 
+const getAllUsers = async (
+  filters: { role?: UserRole },
+  options: IPaginationOptions,
+) => {
+  const { limit, page, skip } = calculatePagination(options);
+  const { role } = filters;
+
+  const andConditions: Prisma.UserWhereInput[] = [];
+
+  if (role) {
+    andConditions.push({
+      role: {
+        equals: role,
+      },
+    });
+  }
+
+  andConditions.push({
+    status: 'ACTIVE',
+  });
+
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const users = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : { createdAt: 'desc' },
+    include: {
+      admin: true,
+      vendor: true,
+      customer: true,
+    },
+  });
+
+  const total = await prisma.user.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: users,
+  };
+};
+
 export const userService = {
   createAdmin,
   createVendor,
@@ -476,4 +533,5 @@ export const userService = {
   unfollowVendor,
   updateCustomer,
   updateVendor,
+  getAllUsers,
 };
