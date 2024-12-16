@@ -5,9 +5,11 @@ const createProductValidation = z.object({
     name: z.string({
       required_error: 'Product Name is required',
     }),
-    image: z.string({
-      required_error: 'Product image is required',
-    }),
+    image: z.array(
+      z.string({
+        required_error: 'Product image is required',
+      }),
+    ),
     price: z
       .number({
         required_error: 'Product price is required',
@@ -35,16 +37,16 @@ const createProductValidation = z.object({
 
 const updateProductValidation = z.object({
   body: z.object({
-    name: z
-      .string({
-        required_error: 'Product Name is required',
-      })
-      .optional(),
-    image: z
-      .string({
-        required_error: 'Product image is required',
-      })
-      .optional(),
+    name: z.string({
+      required_error: 'Product Name is required',
+    }),
+    image: z.array(
+      z
+        .string({
+          required_error: 'Product image is required',
+        })
+        .optional(),
+    ),
     price: z
       .number({
         required_error: 'Product price is required',

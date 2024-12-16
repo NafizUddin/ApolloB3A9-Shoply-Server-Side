@@ -5,6 +5,8 @@ export type TProducts = {
   description: string;
   image: string[];
   categoryId: string;
+  flashSale?: boolean;
+  discount?: number;
 };
 
 export type TProductFilterRequest = {
