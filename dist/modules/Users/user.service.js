@@ -20,6 +20,7 @@ const config_1 = __importDefault(require("../../config"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const client_1 = require("@prisma/client");
 const verifyJWT_1 = require("../../utils/verifyJWT");
+const calculatePagination_1 = require("../../utils/calculatePagination");
 const createAdmin = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     // checking if the user is exist
     const user = yield prisma_1.default.user.findUnique({
@@ -182,7 +183,11 @@ const getMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
                 email: userInfo.email,
             },
             include: {
-                products: true,
+                products: {
+                    include: {
+                        category: true,
+                    },
+                },
                 orders: true,
                 followers: {
                     include: {
@@ -347,6 +352,112 @@ const updateVendor = (payload, userData) => __awaiter(void 0, void 0, void 0, fu
     });
     return result;
 });
+const getAllUsers = (filters, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { limit, page, skip } = (0, calculatePagination_1.calculatePagination)(options);
+    const { role } = filters;
+    const andConditions = [];
+    if (role) {
+        andConditions.push({
+            role: {
+                equals: role,
+            },
+        });
+    }
+    // andConditions.push({
+    //   status: 'ACTIVE',
+    // });
+    const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
+    const users = yield prisma_1.default.user.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: options.sortBy && options.sortOrder
+            ? { [options.sortBy]: options.sortOrder }
+            : { createdAt: 'desc' },
+        include: {
+            admin: true,
+            vendor: true,
+            customer: true,
+        },
+    });
+    const total = yield prisma_1.default.user.count({
+        where: whereConditions,
+    });
+    return {
+        meta: {
+            total,
+            page,
+            limit,
+        },
+        data: users,
+    };
+});
+const blockUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findUnique({
+        where: {
+            email,
+        },
+    });
+    if (!user) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "This user doesn't exist!");
+    }
+    const { role } = user;
+    yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        yield tx.user.update({
+            where: { email },
+            data: { status: 'BLOCKED' },
+        });
+        if (role === 'VENDOR') {
+            yield tx.vendor.updateMany({
+                where: { email },
+                data: { isDeleted: true },
+            });
+        }
+        else if (role === 'CUSTOMER') {
+            yield tx.customer.updateMany({
+                where: { email },
+                data: { isDeleted: true },
+            });
+        }
+        else {
+            throw new Error('Invalid role for blocking');
+        }
+    }));
+    return { message: `User with email ${email} has been blocked` };
+});
+const unblockUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findUnique({
+        where: {
+            email,
+        },
+    });
+    if (!user) {
+        throw new appError_1.default(http_status_1.default.NOT_FOUND, "This user doesn't exist!");
+    }
+    const { role } = user;
+    yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        yield tx.user.update({
+            where: { email },
+            data: { status: 'ACTIVE' },
+        });
+        if (role === 'VENDOR') {
+            yield tx.vendor.updateMany({
+                where: { email },
+                data: { isDeleted: false },
+            });
+        }
+        else if (role === 'CUSTOMER') {
+            yield tx.customer.updateMany({
+                where: { email },
+                data: { isDeleted: false },
+            });
+        }
+        else {
+            throw new Error('Invalid role for blocking');
+        }
+    }));
+    return { message: `User with email ${email} has been unblocked` };
+});
 exports.userService = {
     createAdmin,
     createVendor,
@@ -358,4 +469,7 @@ exports.userService = {
     unfollowVendor,
     updateCustomer,
     updateVendor,
+    getAllUsers,
+    blockUser,
+    unblockUser,
 };

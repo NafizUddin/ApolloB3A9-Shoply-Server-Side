@@ -18,6 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const user_service_1 = require("./user.service");
 const config_1 = __importDefault(require("../../config"));
+const pick_1 = __importDefault(require("../../utils/pick"));
 const createAdmin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_service_1.userService.createAdmin(req.body);
     const { refreshToken, accessToken, newUser } = result;
@@ -66,29 +67,38 @@ const createCustomer = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: newUser,
     });
 }));
-// const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-//   // console.log(req.query)
-//   const filters = pick(req.query, userFilterableFields);
-//   const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
-//   const result = await userService.getAllFromDB(filters, options);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Users data fetched!',
-//     meta: result.meta,
-//     data: result.data,
-//   });
-// });
-// const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const result = await userService.changeProfileStatus(id, req.body);
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Users profile status changed!',
-//     data: result,
-//   });
-// });
+const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filters = (0, pick_1.default)(req.query, ['role', 'status']); // Filterable fields for users
+    const options = (0, pick_1.default)(req.query, ['limit', 'page', 'sortBy', 'sortOrder']); // Pagination and sorting options
+    const result = yield user_service_1.userService.getAllUsers(filters, options);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Users retrieved successfully!',
+        meta: result.meta,
+        data: result.data,
+    });
+}));
+const blockUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.params;
+    const result = yield user_service_1.userService.blockUser(email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Users profile status changed!',
+        data: result,
+    });
+}));
+const unblockUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.params;
+    const result = yield user_service_1.userService.unblockUser(email);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Users profile status changed!',
+        data: result,
+    });
+}));
 const getMyProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_service_1.userService.getMyProfile(req.user);
     (0, sendResponse_1.default)(res, {
@@ -158,8 +168,7 @@ exports.userController = {
     createAdmin,
     createVendor,
     createCustomer,
-    //   getAllFromDB,
-    //   changeProfileStatus,
+    getAllUsers,
     getMyProfile,
     getVendorUser,
     getCustomerUser,
@@ -167,4 +176,6 @@ exports.userController = {
     unfollowVendor,
     updateCustomer,
     updateVendor,
+    blockUser,
+    unblockUser,
 };

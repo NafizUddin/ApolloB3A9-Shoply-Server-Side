@@ -7,9 +7,9 @@ const createProductValidation = zod_1.z.object({
         name: zod_1.z.string({
             required_error: 'Product Name is required',
         }),
-        image: zod_1.z.string({
+        image: zod_1.z.array(zod_1.z.string({
             required_error: 'Product image is required',
-        }),
+        })),
         price: zod_1.z
             .number({
             required_error: 'Product price is required',
@@ -36,16 +36,14 @@ const createProductValidation = zod_1.z.object({
 });
 const updateProductValidation = zod_1.z.object({
     body: zod_1.z.object({
-        name: zod_1.z
-            .string({
+        name: zod_1.z.string({
             required_error: 'Product Name is required',
-        })
-            .optional(),
-        image: zod_1.z
+        }),
+        image: zod_1.z.array(zod_1.z
             .string({
             required_error: 'Product image is required',
         })
-            .optional(),
+            .optional()),
         price: zod_1.z
             .number({
             required_error: 'Product price is required',

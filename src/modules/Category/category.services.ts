@@ -24,7 +24,14 @@ const createCategory = async (payload: { category: string; image: string }) => {
 };
 
 const getAllCategories = async () => {
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    where: {
+      isDeleted: false,
+    },
+    include: {
+      products: true,
+    },
+  });
   return categories;
 };
 
