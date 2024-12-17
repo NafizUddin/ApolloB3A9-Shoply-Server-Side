@@ -84,21 +84,23 @@ router.patch(
   userController.updateVendor,
 );
 
+router.patch(
+  '/block-user/:email',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.blockUser,
+);
+
+router.patch(
+  '/unblock-user/:email',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.unblockUser,
+);
+
 // router.patch(
 //   '/:id/status',
 //   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
 //   validateRequest(userValidation.updateStatus),
 //   userController.changeProfileStatus,
-// );
-
-// router.patch(
-//   '/update-my-profile',
-//   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
-//   fileUploader.upload.single('file'),
-//   (req: Request, res: Response, next: NextFunction) => {
-//     req.body = JSON.parse(req.body.data);
-//     return userController.updateMyProfie(req, res, next);
-//   },
 // );
 
 export const UserRoutes = router;

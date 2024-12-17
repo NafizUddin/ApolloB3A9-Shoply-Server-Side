@@ -80,17 +80,29 @@ const getAllUsers = catchAsync(async (req, res) => {
   });
 });
 
-// const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const result = await userService.changeProfileStatus(id, req.body);
+const blockUser = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const result = await userService.blockUser(email);
 
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Users profile status changed!',
-//     data: result,
-//   });
-// });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Users profile status changed!',
+    data: result,
+  });
+});
+
+const unblockUser = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const result = await userService.unblockUser(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Users profile status changed!',
+    data: result,
+  });
+});
 
 const getMyProfile = catchAsync(async (req, res) => {
   const result = await userService.getMyProfile(req.user as IAuthUser);
@@ -190,7 +202,6 @@ export const userController = {
   createVendor,
   createCustomer,
   getAllUsers,
-  //   changeProfileStatus,
   getMyProfile,
   getVendorUser,
   getCustomerUser,
@@ -198,4 +209,6 @@ export const userController = {
   unfollowVendor,
   updateCustomer,
   updateVendor,
+  blockUser,
+  unblockUser,
 };
